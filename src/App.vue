@@ -1,21 +1,28 @@
 
 <template>
-    <canvas class="canvas" ref="canvas" :width="size*2" :height="size*2"></canvas>
+    <div style="width:100vw; height: 100vh; overflow: hidden ">
+    <canvas @click='e => draw(e)' class="canvas" ref="canvas" :width="size*2" :height="size"></canvas>
+    </div>
+
 </template>
 
 <script setup>
-import {computed, onMounted, reactive, ref, watch} from "vue";
-import {parast} from "./cfd.js";
+import {onMounted, ref} from "vue";
 
-let size = 180
+let size = 1000
 
-let angle = 30
+let angle = Math.PI/6
 
-let iterations = 3
+let iterations = 7
 
 let axiom = '0'
 
 let start_point = [size, size]
+
+let turtle = {
+    p: [size, size],
+    v: [0,-5]
+}
 
 let branches = {
     '0': {rule: '1[+0]-0', color: '#027202'},
@@ -25,60 +32,75 @@ let branches = {
 /** @type {{value:HTMLCanvasElement}} */
 let canvas = ref()
 
-let draw = () => {
+let draw = (e) => {
+    let point = [e.clientX, e.clientY]
+
     const ctx = canvas.value.getContext('2d');
 
-    ctx.clearRect(0, 0, size*2, size*2);
-
-    if (rank.value && view_line.value){
-        ctx.strokeStyle = "rgb(255,165,0)";
-        ctx.beginPath();
-        points.forEach((point,i) => {if (i%rank.value === 0) ctx.lineTo(...point)})
-        ctx.stroke();
+    let rule =  axiom
+    for(let i=0; i<iterations; i++){
+        let new_rule = ''
+        for(let j=0; j < rule.length; j++){
+            let ch = rule.charAt(j);
+            if (ch in branches) {
+                new_rule += branches[ch].rule
+            }else{
+                new_rule += ch
+            }
+        }
+        rule = new_rule
     }
+
+    turtle = {
+        p: point,
+        v: [0,-5]
+    }
+
+    ctx.beginPath();
+
+    let stack = []
+    for(let j=0; j < rule.length; j++){
+        let ch = rule.charAt(j);
+
+        if (ch in branches) {
+            ctx.beginPath();
+            ctx.moveTo(...turtle.p);
+            ctx.strokeStyle = branches[ch].color;
+            turtle.p[0] += turtle.v[0]
+            turtle.p[1] += turtle.v[1]
+            ctx.lineTo(...turtle.p);
+            ctx.stroke();
+        }else if (ch==='['){
+            stack.push({p:[...turtle.p],v:[...turtle.v]})
+        }else if (ch===']'){
+            turtle = stack.pop()
+        }else if (ch==='+'){
+            turtle.v = [
+                Math.cos(angle)*turtle.v[0] - Math.sin(angle)*turtle.v[1],
+                Math.sin(angle)*turtle.v[0] + Math.cos(angle)*turtle.v[1]
+            ]
+        }else if (ch==='-'){
+            turtle.v = [
+                Math.cos(angle)*turtle.v[0] + Math.sin(angle)*turtle.v[1],
+                - Math.sin(angle)*turtle.v[0] + Math.cos(angle)*turtle.v[1]
+            ]
+        }
+    }
+
 }
 
 
 onMounted(()=>{
-    requestAnimationFrame(function step() {
-        draw()
-        requestAnimationFrame(step)
-    })
+    // draw()
+
+    // requestAnimationFrame(function step() {
+    //     requestAnimationFrame(step)
+    // })
 })
 
 
 </script>
 
 <style>
-.top-control{
-    top:0;
-    left:0;
-    width: 100vw;
-    position: absolute;
-}
-.bottom-control{
-    bottom:0;
-    left:0;
-    width: 100vw;
-    position: absolute;
-}
 
-.spiral{
-    border: 1px #472f28 solid;
-    border-radius: 5px;
-    margin-left:3px;
-    margin-top:3px;
-    cursor:pointer;
-    background-color: #ffe445;
-    color: #472f28;
-    padding: 3px;
-}
-.spiral.active {
-    color: #ffe445;
-    background-color: #472f28;
-}
-
-.num{
-    width: 70px !important;
-}
 </style>
