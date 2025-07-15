@@ -21,11 +21,9 @@ describe('generateLProgram', () => {
         // expansions: [F+G, F-G]
         // parts: ['F+G', '-F-G']
         // Ожидаем дробные суффиксы
-        const result = generateLProgram(axiom, rules, 1.5);
-        expect(result).toContain('F.5');
-        expect(result).toContain('+.5');
-        expect(result).toContain('G.5');
-        expect(result).toContain('-.5');
+        expect(generateLProgram(axiom, rules, 0.2)).toBe('F.8F.2+.2G.2');
+        expect(generateLProgram(axiom, rules, 1.2)).toBe('F.8F.2+.2G.2+G.8F.2-.2G.2');
+
     });
 
     it('работает с несколькими итерациями', () => {
