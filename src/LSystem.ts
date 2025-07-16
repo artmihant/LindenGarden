@@ -1,5 +1,4 @@
-import type { Rules, TurtleState } from '@/types';
-
+import type { Rules, Turtle, DrawOptions, Camera, GeneralDrawOptions } from '@/types';
 /**
  * Применяет правила L-системы к строке для заданного количества итераций.
  */
@@ -52,42 +51,31 @@ function generateLProgram(axiom: string, rules: Rules, step: number): string {
     return generateLProgram(axiom, partialApplyRules(rules, step), 1)
 }    
 
-
-
-const SCREEN_SIZE = 12 // число единиц относительного размера, которое поместится в экран при единичном масштабе
+ // функция для перевода из относительных координат в пиксели
+function toPixels(turtle: Turtle, camera: Camera): [number, number] {
+    return [
+        camera.x + turtle.x * camera.scale,
+        camera.y + turtle.y * camera.scale
+    ]
+}
 
 function drawLSystem(state: {
         ctx: CanvasRenderingContext2D, 
         program: string, 
-        turtleState: TurtleState, 
-        drawOptions: DrawOptions, 
-        cameraOptions: CameraOption
+        turtleInitialState: Turtle, 
+        generalDrawOptions: GeneralDrawOptions
+        specialDrawOptions: {[key: string]: DrawOptions}, 
+        camera: Camera
     }) {
 
-    const {ctx, program, turtleState, drawOptions, cameraOptions} = state
-
-    let {stepLength, turnAngle, lineWidth, colorMap, defaultColor} = 
-    let {x: cameraX, y: cameraY, scale: cameraScale } = cameraOptions;
-
-    const width = ctx.canvas.width;
-    const height = ctx.canvas.height;
-    const characteristicSize = Math.min(width, height) / SCREEN_SIZE;
-    const scaledCharSize = characteristicSize * cameraScale;
-
-    // stepLength теперь тоже масштабируется
-    const stepLengthPx = stepLength * scaledCharSize;
-
-    // Смещение камеры: x и y минус cameraX, cameraY
-    let px = width / 2 + (turtleState.x - cameraX) * scaledCharSize;
-    let py = height / 2 - (turtleState.y - cameraY) * scaledCharSize;
-    let angle = turtleState.angle
+    const {ctx, program, turtleInitialState:turtle, specialDrawOptions, generalDrawOptions, camera} = state
 
     ctx.save();
-    ctx.lineWidth = lineWidth;
+    ctx.lineWidth = generalDrawOptions.lineWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    const stack: Array<{ px: number, py: number, angle: number }> = [];
+    const stack: Array<Turtle> = [];
 
     let i = 0;
     while (i < program.length) {
@@ -95,29 +83,29 @@ function drawLSystem(state: {
 
         // Повороты
         if (ch === '+') {
-            angle += turnAngle;
+            turtle.angle += generalDrawOptions.stepAngle;
             i++;
             continue;
         }
         if (ch === '-') {
-            angle -= turnAngle;
+            turtle.angle -= generalDrawOptions.stepAngle;
             i++;
             continue;
         }
 
         // Стек
         if (ch === '[') {
-            stack.push({px, py, angle });
+            stack.push({x:turtle.x, y:turtle.y, angle:turtle.angle });
             i++;
             continue;
         }
         if (ch === ']') {
-            const state = stack.pop();
-            if (state) {
-                px = state.px;
-                py = state.py;
-                angle = state.angle;
-                ctx.moveTo(px, py);
+            const turtleState = stack.pop();
+            if (turtleState) {
+                turtle.x = turtleState.x;
+                turtle.y = turtleState.y;
+                turtle.angle = turtleState.angle;
+                ctx.moveTo(...toPixels(turtle, camera));
             }
             i++;
             continue;
@@ -139,20 +127,29 @@ function drawLSystem(state: {
                     }
                 }
             }
-            const len = stepLengthPx * frac;
 
             if (/[A-ZА-Я]/.test(ch)) { // Большая буква — рисуем
-                const color = colorMap[ch] || defaultColor || "black";
-                ctx.strokeStyle = color;
+
+                if (specialDrawOptions[ch]) {
+                    const {color, lineWidth, step} = specialDrawOptions[ch]
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = lineWidth;
+                    frac *= step
+                } else {
+                    const {color, lineWidth, step} = specialDrawOptions[ch]
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = lineWidth;
+                    frac *= step
+
+                }
                 ctx.beginPath();
-                ctx.moveTo(px, py);
-                const rad = angle * Math.PI / 180;
-                const newX = px + len * Math.cos(rad);
-                const newY = py + len * Math.sin(rad);
-                ctx.lineTo(newX, newY);
+                ctx.moveTo(...toPixels(turtle, camera));
+                const rad = turtle.angle * Math.PI / 180;
+                turtle.x += frac * Math.cos(rad);
+                turtle.y += frac * Math.sin(rad);
+
+                ctx.lineTo(...toPixels(turtle, camera));
                 ctx.stroke();
-                px = newX;
-                py = newY;
             } // Маленькая буква — ничего не делаем
 
             i += match[0].length;

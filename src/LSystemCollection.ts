@@ -1,11 +1,13 @@
 
+import type { Rules, DrawSetting } from '@/types';
+
 interface LSystemCollectionItem {
     name: string;                 // Название фигуры
     axiom: string;                // Аксиома (начальная строка)
     stepAngle: number;            // Угол поворота черепашки (в градусах)
     rules: Rules; // Правила переписывания для каждого символа
-    drawSettings: {[key: string]: drawSetting}; // Индивидуальные правила рисования правил с заглавными буквами
-    defaultSetting: drawSetting; // Параметры рисования всех правил с заглавными буквами по умолчанию
+    drawSettings: {[key: string]: DrawSetting}; // Индивидуальные правила рисования правил с заглавными буквами
+    defaultSetting: DrawSetting; // Параметры рисования всех правил с заглавными буквами по умолчанию
     start: {x: number, y: number, angle: number}; // Начальное состояние черепашки
     power: number;                // Скорость отдаления камеры в процессе роста
 }
