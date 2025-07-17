@@ -63,15 +63,17 @@ function drawLSystem(state: {
         ctx: CanvasRenderingContext2D, 
         program: string, 
         turtleInitialState: Turtle, 
-        generalDrawOptions: GeneralDrawOptions
+        stepAngle: number,
+        generalDrawOption: DrawOptions,
         specialDrawOptions: {[key: string]: DrawOptions}, 
         camera: Camera
     }) {
 
-    const {ctx, program, turtleInitialState:turtle, specialDrawOptions, generalDrawOptions, camera} = state
+    const {ctx, program, turtleInitialState:turtle, stepAngle, specialDrawOptions, generalDrawOption, camera} = state
 
     ctx.save();
-    ctx.lineWidth = generalDrawOptions.lineWidth;
+    debugger
+    ctx.lineWidth = generalDrawOption.lineWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -83,12 +85,12 @@ function drawLSystem(state: {
 
         // Повороты
         if (ch === '+') {
-            turtle.angle += generalDrawOptions.stepAngle;
+            turtle.angle += stepAngle;
             i++;
             continue;
         }
         if (ch === '-') {
-            turtle.angle -= generalDrawOptions.stepAngle;
+            turtle.angle -= stepAngle;
             i++;
             continue;
         }

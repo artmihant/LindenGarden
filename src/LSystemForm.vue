@@ -20,7 +20,7 @@
       <table>
         <tr v-for="key in model.keys" :key="key">
           <td>{{key}}</td>
-          <td><input v-model="model.rules[key].replace" @input="emitUpdate"></td>
+          <td><input v-model="model.rules[key]" @input="emitUpdate"></td>
           <td><input type="color" v-model="model.rules[key].color" @input="emitUpdate"></td>
           <td><input type="checkbox" v-model="model.rules[key].draw" @change="emitUpdate"></td>
         </tr>
@@ -34,7 +34,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 
 import {ref, watch, toRefs} from 'vue';
 
