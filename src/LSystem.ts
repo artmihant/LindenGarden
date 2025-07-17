@@ -24,7 +24,7 @@ function partialApplyRules(rules: Rules, fracStep: number, power: number): Rules
     for (const key in rules) {
         let newRule = key+compSuffix;
         for (const ch of rules[key]) {
-            if (/^[a-zA-Zа-яА-Я]$/.test(ch) || ch == '+' || ch == '-') {
+            if (/^[a-zA-Zа-яА-Я]$/.test(ch)) {
                 newRule += ch + fracSuffix;
             } else {
                 newRule += ch;

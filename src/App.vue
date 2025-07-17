@@ -5,7 +5,6 @@
             :figureCollection="figureCollection" 
             v-model:chosen="chosen" 
             @update:model="onModelUpdate"
-            @preset-change="(val: number) => { chosen.value = val }" 
         />
         <canvas id="canvas" style="flex: 1; height: 100vh;"></canvas> 
     </div>
@@ -18,7 +17,7 @@ import { generateLProgram, drawLSystem } from '@/LSystem'; // Импорт фу�
 import LSystemForm from '@/LSystemForm.vue'; // Импорт компонента формы
 import LSystemCollection from '@/LSystemCollection'; // Импорт коллекции L-систем
 
-const SCREEN_SIZE = 12; // Размер экрана в условных единицах
+const SCREEN_SIZE = 3; // Размер экрана в условных единицах
 
 const camera = reactive<Camera>({ // Реактивный объект камеры
     x: 0, // Координата X центра камеры
@@ -32,7 +31,7 @@ const chosen = ref(0); // Индекс выбранной фигуры
 const model: ref<LSystemModel> = ref({ ...figureCollection[chosen.value] });
 
 watch(chosen, (val: number) => {
-    model.value = figureCollection[val]
+    model.value = { ...figureCollection[val] };
     render();
 });
 
