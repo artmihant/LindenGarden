@@ -8,7 +8,6 @@ export interface LSystemModel {
     stepAngle: number;            // Угол поворота черепашки (в градусах)
     rules: Rules; // Правила переписывания для каждого символа
     specialDrawOptions: {[key: string]: DrawOptions}; // Индивидуальные правила рисования правил с заглавными буквами
-    generalDrawOptions: DrawOptions; // Параметры рисования всех правил с заглавными буквами по умолчанию
     start: {x: number, y: number, angle: number}; // Начальное состояние черепашки
     power: number;                // Скорость отдаления камеры в процессе роста
     iterations: number; // Количество итераций

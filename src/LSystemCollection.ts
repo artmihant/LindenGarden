@@ -13,27 +13,30 @@ const LSystemCollection: LSystemModel[] = [
         },
         specialDrawOptions: {
             'Л': { color: '#00ff00', lineWidth: 2, step: 1},
-            'В': { color: '#2c1d00', lineWidth: 2, step: 1 },
+            'В': { color: '#2c1d00', lineWidth: 2, step: 1},
         },
-        generalDrawOptions: { color: '#000000', lineWidth: 2, step: 1 },
-        start: { x: 0, y: 0, angle: 0 },
-        power: 1.3,
+        start: { x: 0, y: 0, angle: -90 },
+        power: 1.9,
         iterations: 3, // Количество итераций
-        iterations_max: 8, // Максимальное количество итераций
+        iterations_max: 10, // Максимальное количество итераций
     },
-    // {
-    //     name: 'Кривая Госпера',
-    //     axiom: 'A',
-    //     stepAngle: 60,
-    //     rules: {
-    //         'A': 'A-B--B+A++AA+B-',
-    //         'B': '+A-BB--B-A++A+B',
-    //     },
-    //     drawSettings: {},
-    //     defaultSetting: { color: '#2f0272', lineWidth: 2, step: 1 },
-    //     start: { x: 300, y: 100, angle: 0 },
-    //     power: 1.8,
-    // },
+    {
+        name: 'Кривая Госпера',
+        axiom: 'A',
+        stepAngle: 60,
+        rules: {
+            'A': 'A-B--B+A++AA+B-',
+            'B': '+A-BB--B-A++A+B',
+        },
+        specialDrawOptions: {
+            'A': { color: '#2f0272', lineWidth: 1, step: 1 },
+            'B': { color: '#2f0272', lineWidth: 1, step: 1 },
+        },
+        start: { x: 0, y: 0, angle: 0 },
+        power: 1.8,
+        iterations: 3, // Количество итераций
+        iterations_max: 5, // Максимальное количество итераций
+    },
     // {
     //     name: 'Кривая дракона',
     //     axiom: 'FA',

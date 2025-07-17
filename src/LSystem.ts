@@ -15,8 +15,8 @@ function applyRules(axiom: string, rules: Rules): string {
  * @param rules Обычные правила L-системы
  * @param fracStep Дробная часть шага (например, 0.37)
  */
-function partialApplyRules(rules: Rules, fracStep: number): Rules {
-    const compStep = 1-fracStep
+function partialApplyRules(rules: Rules, fracStep: number, power: number): Rules {
+    const compStep = power**fracStep - power*fracStep
     const fracSuffix = fracStep.toFixed(2).replace(/^0/, "").replace(/0+$/, "");
     const compSuffix = compStep.toFixed(2).replace(/^0/, "").replace(/0+$/, "");
 
@@ -24,7 +24,7 @@ function partialApplyRules(rules: Rules, fracStep: number): Rules {
     for (const key in rules) {
         let newRule = key+compSuffix;
         for (const ch of rules[key]) {
-            if (/^[a-zA-Zа-яА-Я]$/.test(ch)) {
+            if (/^[a-zA-Zа-яА-Я]$/.test(ch) || ch == '+' || ch == '-') {
                 newRule += ch + fracSuffix;
             } else {
                 newRule += ch;
@@ -43,19 +43,20 @@ function partialApplyRules(rules: Rules, fracStep: number): Rules {
  * @param step Дробный шаг (например, 2.37)
  * @returns Строка команд для черепашки с дробными суффиксами
  */
-function generateLProgram(axiom: string, rules: Rules, step: number): string {
+function generateLProgram(axiom: string, rules: Rules, step: number, power: number): string {
     if (step < 0) throw new Error('Step must be >= 0');
     if (step == 0) return axiom
     if (step == 1) return applyRules(axiom, rules)
-    if (step > 1) return generateLProgram(applyRules(axiom, rules), rules, step-1)
-    return generateLProgram(axiom, partialApplyRules(rules, step), 1)
+    if (step > 1) return generateLProgram(applyRules(axiom, rules), rules, step-1, power)
+    return generateLProgram(axiom, partialApplyRules(rules, step, power), 1, power)
 }    
 
  // функция для перевода из относительных координат в пиксели
-function toPixels(turtle: Turtle, camera: Camera): [number, number] {
+function toPixels(turtle: Turtle, camera: Camera, power: number, iterations: number): [number, number] {
+    const powerScale = power**iterations
     return [
-        camera.x + turtle.x * camera.scale,
-        camera.y + turtle.y * camera.scale
+        camera.x + turtle.x * camera.scale/powerScale,
+        camera.y + turtle.y * camera.scale/powerScale
     ]
 }
 
@@ -64,16 +65,17 @@ function drawLSystem(state: {
         program: string, 
         turtleInitialState: Turtle, 
         stepAngle: number,
-        generalDrawOption: DrawOptions,
         specialDrawOptions: {[key: string]: DrawOptions}, 
+        power: number,
+        iterations: number,
         camera: Camera
     }) {
 
-    const {ctx, program, turtleInitialState:turtle, stepAngle, specialDrawOptions, generalDrawOption, camera} = state
+    const {ctx, program, turtleInitialState, stepAngle, specialDrawOptions, camera, power, iterations} = state
 
+    const turtle = {...turtleInitialState}
     ctx.save();
-    debugger
-    ctx.lineWidth = generalDrawOption.lineWidth;
+    ctx.lineWidth = 1;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
@@ -83,17 +85,6 @@ function drawLSystem(state: {
     while (i < program.length) {
         let ch = program[i];
 
-        // Повороты
-        if (ch === '+') {
-            turtle.angle += stepAngle;
-            i++;
-            continue;
-        }
-        if (ch === '-') {
-            turtle.angle -= stepAngle;
-            i++;
-            continue;
-        }
 
         // Стек
         if (ch === '[') {
@@ -107,14 +98,14 @@ function drawLSystem(state: {
                 turtle.x = turtleState.x;
                 turtle.y = turtleState.y;
                 turtle.angle = turtleState.angle;
-                ctx.moveTo(...toPixels(turtle, camera));
+                ctx.moveTo(...toPixels(turtle, camera, power, iterations));
             }
             i++;
             continue;
         }
 
         // Проверяем на суффикс .N
-        let match = program.slice(i).match(/^([A-Za-zА-Яа-я])((?:\.[0-9]+)*)/);
+        let match = program.slice(i).match(/^([A-Za-zА-Яа-я\+\-])((?:\.[0-9]+)*)/);
         if (match) {
             ch = match[1];
             let frac = 1;
@@ -132,27 +123,38 @@ function drawLSystem(state: {
 
             if (/[A-ZА-Я]/.test(ch)) { // Большая буква — рисуем
 
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 1;
+
                 if (specialDrawOptions[ch]) {
                     const {color, lineWidth, step} = specialDrawOptions[ch]
                     ctx.strokeStyle = color;
                     ctx.lineWidth = lineWidth;
                     frac *= step
-                } else {
-                    const {color, lineWidth, step} = specialDrawOptions[ch]
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = lineWidth;
-                    frac *= step
-
                 }
+
                 ctx.beginPath();
-                ctx.moveTo(...toPixels(turtle, camera));
+                ctx.moveTo(...toPixels(turtle, camera, power, iterations));
                 const rad = turtle.angle * Math.PI / 180;
                 turtle.x += frac * Math.cos(rad);
                 turtle.y += frac * Math.sin(rad);
 
-                ctx.lineTo(...toPixels(turtle, camera));
+                ctx.lineTo(...toPixels(turtle, camera, power, iterations));
                 ctx.stroke();
             } // Маленькая буква — ничего не делаем
+
+            // Повороты
+            if (ch === '+') {
+                turtle.angle += stepAngle*frac;
+                i++;
+                continue;
+            }
+            if (ch === '-') {
+                turtle.angle -= stepAngle*frac;
+                i++;
+                continue;
+            }
+
 
             i += match[0].length;
             continue;

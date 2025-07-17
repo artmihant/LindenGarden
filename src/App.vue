@@ -68,18 +68,24 @@ function render() { // Функция отрисовки L-системы
     const ctx = canvas.getContext('2d')!; // Получаем контекст рисования
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
 
+
+    const program = generateLProgram(
+        model.value.axiom,
+        model.value.rules,
+        Number(model.value.iterations),
+        Number(model.value.power)
+    )
+
     drawLSystem({ // Вызываем функцию отрисовки L-системы
         ctx,
-        program: generateLProgram(
-            model.value.axiom,
-            model.value.rules,
-            model.value.iterations
-        ),
+        program,
         turtleInitialState: model.value.start, // Начальное состояние "черепахи"
         stepAngle: model.value.stepAngle,  // угол поворота
         generalDrawOption: model.value.generalDrawOption,
         specialDrawOptions: model.value.specialDrawOptions,
-        camera // Параметры камеры
+        power: model.value.power,
+        iterations: model.value.iterations,
+        camera, // Параметры камеры,
     });
 }
 
