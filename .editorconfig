@@ -1,0 +1,26 @@
+# EditorConfig для LindenGarden
+# Предпочтения по форматированию кода для всех разработчиков и AI-ассистентов
+
+root = true
+
+# Общие настройки для всех файлов
+[*]
+charset = utf-8
+end_of_line = lf
+# ВАЖНО: Владелец проекта предпочитает отступы в 4 пробела
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# JavaScript, TypeScript, Vue - 4 пробела (предпочтение владельца)
+[*.{js,ts,vue,json}]
+indent_size = 4
+
+# HTML, CSS, SCSS - 4 пробела для консистентности
+[*.{html,css,scss}]
+indent_size = 4
+
+# Markdown - не убираем trailing whitespace (может быть значимым)
+[*.md]
+trim_trailing_whitespace = false

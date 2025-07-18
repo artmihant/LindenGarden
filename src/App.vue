@@ -1,18 +1,22 @@
 <template>
-    <div style="display: flex; width: 100vw; height: 100vh;"> 
+    <div class="fixed inset-0 w-full h-full bg-gray-100">
+        <!-- Canvas на весь экран -->
+        <canvas id="canvas" class="absolute w-full h-full"></canvas>
+
+        <!-- Floating панель поверх canvas -->
         <LSystemForm
-            :model="model" 
-            :figureCollection="figureCollection" 
-            v-model:chosen="chosen" 
+            :model="model"
+            :figureCollection="figureCollection"
+            v-model:chosen="chosen"
             @update:model="onModelUpdate"
+            class="absolute top-4 left-4 z-10"
         />
-        <canvas id="canvas" style="flex: 1; height: 100vh;"></canvas> 
     </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue'; // Импорт хуков Vue
-import type { Camera, LSystemModel} from '@/types'; 
+import type { Camera, LSystemModel} from '@/types';
 import { generateLProgram, drawLSystem } from '@/LSystem'; // Импорт функций генерации и отрисовки L-системы
 import LSystemForm from '@/LSystemForm.vue'; // Импорт компонента формы
 import LSystemCollection from '@/LSystemCollection'; // Импорт коллекции L-систем
@@ -28,7 +32,7 @@ const camera = reactive<Camera>({ // Реактивный объект каме�
 const figureCollection = LSystemCollection; // Коллекция фигур
 const chosen = ref(0); // Индекс выбранной фигуры
 
-const model: ref<LSystemModel> = ref({ ...figureCollection[chosen.value] });
+const model = ref<LSystemModel>({ ...figureCollection[chosen.value] });
 
 watch(chosen, (val: number) => {
     model.value = { ...figureCollection[val] };
@@ -44,6 +48,7 @@ let isDragging = false; // Флаг перетаскивания мышью
 let lastMouseX = 0; // Последняя позиция мыши X
 let lastMouseY = 0; // Последняя позиция мыши Y
 let lastTouchDist = 0; // Последнее расстояние между двумя пальцами
+let lastTouchCenter = { x: 0, y: 0 }; // Последний центр между двумя пальцами
 
 function getTouchDist(e: TouchEvent) { // Получить расстояние между двумя пальцами
     if (e.touches.length < 2) return 0; // Если пальцев меньше двух — 0
@@ -67,7 +72,6 @@ function render() { // Функция отрисовки L-системы
     const ctx = canvas.getContext('2d')!; // Получаем контекст рисования
     ctx.clearRect(0, 0, canvas.width, canvas.height); // Очищаем канвас
 
-
     const program = generateLProgram(
         model.value.axiom,
         model.value.rules,
@@ -80,7 +84,6 @@ function render() { // Функция отрисовки L-системы
         program,
         turtleInitialState: model.value.start, // Начальное состояние "черепахи"
         stepAngle: model.value.stepAngle,  // угол поворота
-        generalDrawOption: model.value.generalDrawOption,
         specialDrawOptions: model.value.specialDrawOptions,
         power: model.value.power,
         iterations: model.value.iterations,
@@ -90,9 +93,11 @@ function render() { // Функция отрисовки L-системы
 
 function resizeCanvasAndCamera() { // Изменение размера канваса и камеры
     const canvas = document.getElementById('canvas') as HTMLCanvasElement; // Получаем канвас
-    const formWidth = 320; // примерная ширина формы
-    canvas.width = window.innerWidth - formWidth; // Ширина канваса = ширина окна - ширина формы
-    canvas.height = window.innerHeight; // Высота канваса = высота окна
+
+    // Принудительно устанавливаем размеры
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
     camera.x = canvas.width / 2; // Центр камеры по X
     camera.y = canvas.height / 2; // Центр камеры по Y
     camera.scale = Math.min(canvas.width, canvas.height) / SCREEN_SIZE; // Масштаб камеры
@@ -100,7 +105,10 @@ function resizeCanvasAndCamera() { // Изменение размера канв
 }
 
 onMounted(() => { // Хук, вызываемый при монтировании компонента
-    resizeCanvasAndCamera(); // Устанавливаем размер канваса и камеры
+    // Принудительно обновляем размеры несколько раз
+    setTimeout(() => resizeCanvasAndCamera(), 0);
+    setTimeout(() => resizeCanvasAndCamera(), 100);
+    setTimeout(() => resizeCanvasAndCamera(), 500);
 
     window.addEventListener('resize', () => { // При изменении размера окна
         resizeCanvasAndCamera(); // Пересчитываем размеры
@@ -140,7 +148,7 @@ onMounted(() => { // Хук, вызываемый при монтировани�
     canvas.addEventListener('wheel', (e) => { // Прокрутка колеса мыши
         e.preventDefault(); // Предотвращаем стандартное поведение
         const scaleAmount = e.deltaY < 0 ? 1.1 : 0.9; // Определяем масштаб (увеличение/уменьшение)
-        const rect = canvas.getBoundingClientRect(); // Границы канваса
+        const rect = canvas.getBoundingClientRect(); // Boundaries канваса
         const cx = e.clientX - rect.left; // Координата X курсора
         const cy = e.clientY - rect.top; // Координата Y курсора
         camera.x = cx - (cx - camera.x) * scaleAmount; // Центрируем масштаб относительно курсора

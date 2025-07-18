@@ -16,9 +16,12 @@ function applyRules(axiom: string, rules: Rules): string {
  * @param fracStep Дробная часть шага (например, 0.37)
  */
 function partialApplyRules(rules: Rules, fracStep: number, power: number): Rules {
-    const compStep = power**fracStep - power*fracStep
-    const fracSuffix = fracStep.toFixed(2).replace(/^0/, "").replace(/0+$/, "");
-    const compSuffix = compStep.toFixed(2).replace(/^0/, "").replace(/0+$/, "");
+
+    const compStep = 1-fracStep
+    fracStep = (power**fracStep - compStep)/power
+
+    const fracSuffix = fracStep.toFixed(3).replace(/^0/, "").replace(/0+$/, "");
+    const compSuffix = compStep.toFixed(3).replace(/^0/, "").replace(/0+$/, "");
 
     const newRules: Rules = {};
     for (const key in rules) {
@@ -49,7 +52,7 @@ function generateLProgram(axiom: string, rules: Rules, step: number, power: numb
     if (step == 1) return applyRules(axiom, rules)
     if (step > 1) return generateLProgram(applyRules(axiom, rules), rules, step-1, power)
     return generateLProgram(axiom, partialApplyRules(rules, step, power), 1, power)
-}    
+}
 
  // функция для перевода из относительных координат в пиксели
 function toPixels(turtle: Turtle, camera: Camera, power: number, iterations: number): [number, number] {
@@ -61,11 +64,11 @@ function toPixels(turtle: Turtle, camera: Camera, power: number, iterations: num
 }
 
 function drawLSystem(state: {
-        ctx: CanvasRenderingContext2D, 
-        program: string, 
-        turtleInitialState: Turtle, 
+        ctx: CanvasRenderingContext2D,
+        program: string,
+        turtleInitialState: Turtle,
         stepAngle: number,
-        specialDrawOptions: {[key: string]: DrawOptions}, 
+        specialDrawOptions: {[key: string]: DrawOptions},
         power: number,
         iterations: number,
         camera: Camera
