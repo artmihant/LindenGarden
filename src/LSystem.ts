@@ -68,13 +68,13 @@ function drawLSystem(state: {
         program: string,
         turtleInitialState: Turtle,
         stepAngle: number,
-        specialDrawOptions: {[key: string]: DrawOptions},
+        drawOptions: {[key: string]: DrawOptions},
         power: number,
         iterations: number,
         camera: Camera
     }) {
 
-    const {ctx, program, turtleInitialState, stepAngle, specialDrawOptions, camera, power, iterations} = state
+    const {ctx, program, turtleInitialState, stepAngle, drawOptions, camera, power, iterations} = state
 
     const turtle = {...turtleInitialState}
     ctx.save();
@@ -129,8 +129,8 @@ function drawLSystem(state: {
                 ctx.strokeStyle = '#000000';
                 ctx.lineWidth = 1;
 
-                if (specialDrawOptions[ch]) {
-                    const {color, lineWidth, step} = specialDrawOptions[ch]
+                if (drawOptions[ch]) {
+                    const {color, lineWidth, step} = drawOptions[ch]
                     ctx.strokeStyle = color;
                     ctx.lineWidth = lineWidth;
                     frac *= step

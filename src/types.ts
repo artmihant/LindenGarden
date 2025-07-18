@@ -7,13 +7,12 @@ export interface LSystemModel {
     axiom: string;                // Аксиома (начальная строка)
     stepAngle: number;            // Угол поворота черепашки (в градусах)
     rules: Rules; // Правила переписывания для каждого символа
-    specialDrawOptions: {[key: string]: DrawOptions}; // Индивидуальные правила рисования правил с заглавными буквами
+    drawOptions: {[key: string]: DrawOptions}; // Индивидуальные правила рисования правил с заглавными буквами
     start: {x: number, y: number, angle: number}; // Начальное состояние черепашки
     power: number;                // Скорость отдаления камеры в процессе роста
     iterations: number; // Количество итераций
     iterations_max: number // Максимальное количество итераций
 }
-
 
 
 // Состояние черепашки
@@ -23,8 +22,8 @@ export interface Turtle {
     angle: number; // угол поворота
 }
 
-export interface DrawOptions { 
-    color: string, // Цвет линии 
+export interface DrawOptions {
+    color: string, // Цвет линии
     lineWidth: number, // Толщина линии
     step: number, // длина шага в относительных единицах
 }
@@ -38,7 +37,6 @@ export interface LSystemRule {
     color?: string;        // Цвет линии для этого символа
     lineWidth?: number;    // Толщина линии для этого символа
 }
-
 
 export interface Camera {
     x: number; // смещение камеры по X (в относительных единицах)

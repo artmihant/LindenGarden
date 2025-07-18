@@ -17,7 +17,19 @@
             </button>
         </div>
 
-        <!-- Контент панели -->
+        <!-- Ползунок итераций для свернутого состояния -->
+        <div v-if="isCollapsed" class="p-3">
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-medium text-gray-700">Итерация</label>
+                    <span class="text-sm text-gray-500">{{model.iterations}}</span>
+                </div>
+                <input type="range" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                       min="0" :max="model.iterations_max" step="0.1" v-model="model.iterations" @input="emitUpdate">
+            </div>
+        </div>
+
+        <!-- Полный контент панели -->
         <div v-if="!isCollapsed" class="flex-1 overflow-y-auto">
             <!-- Выбор L-системы -->
             <div class="p-3 border-b border-gray-200 bg-gray-50">
@@ -69,7 +81,9 @@
                         <div v-for="key in Object.keys(model.rules)" :key="key"
                              class="bg-gray-50 border border-gray-200 rounded p-2">
                             <div class="flex items-center justify-between mb-2">
-                                <input v-model="symbolInputs[key]" @change="onSymbolChange(key, symbolInputs[key])"
+                                                                <input v-model="symbolInputs[key]"
+                                       @change="onSymbolChange(key, symbolInputs[key])"
+                                       @keypress="onSymbolKeypress"
                                        class="w-8 h-8 text-center font-mono border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                                        maxlength="1"/>
                                 <button @click="removeRule(key)"
@@ -80,15 +94,27 @@
                             <textarea v-model="model.rules[key]" @input="emitUpdate"
                                       class="w-full px-2 py-1 border border-gray-300 rounded text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-2"
                                       rows="1" placeholder="Правило"></textarea>
-                            <div class="flex items-center gap-2">
-                                <input type="color" v-model="model.specialDrawOptions[key].color" @input="emitUpdate"
-                                       class="w-6 h-6 rounded cursor-pointer border border-gray-300">
-                                <input type="number" v-model="model.specialDrawOptions[key].lineWidth" @input="emitUpdate"
-                                       class="w-12 px-1 py-1 border border-gray-300 rounded text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                       min="1" max="10">
-                                <input type="number" v-model="model.specialDrawOptions[key].step" @input="emitUpdate"
-                                       class="w-12 px-1 py-1 border border-gray-300 rounded text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                       min="0.1" max="5" step="0.1">
+                                                        <!-- Настройки отображения только для заглавных букв (которые рисуют) -->
+                            <div v-if="isDrawingSymbol(key)" class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <label class="text-xs text-gray-600 w-12">Цвет:</label>
+                                    <input type="color" v-model="model.drawOptions[key].color" @input="emitUpdate"
+                                           class="w-6 h-6 rounded cursor-pointer border border-gray-300">
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label class="text-xs text-gray-600 w-12">Толщина:</label>
+                                    <input type="number" v-model="model.drawOptions[key].lineWidth" @input="emitUpdate"
+                                           class="w-12 px-1 py-1 border border-gray-300 rounded text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                           min="1" max="10">
+                                    <label class="text-xs text-gray-600 w-12">Длина:</label>
+                                    <input type="number" v-model="model.drawOptions[key].step" @input="emitUpdate"
+                                           class="w-12 px-1 py-1 border border-gray-300 rounded text-xs text-center focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                           min="0.1" max="5" step="0.1">
+                                </div>
+                            </div>
+                            <!-- Пояснение для строчных букв -->
+                            <div v-else class="text-xs text-gray-500 italic">
+                                Строчные буквы не отрисовываются (только перемещение)
                             </div>
                         </div>
                     </div>
@@ -151,21 +177,22 @@ function onPresetChange(event: Event) {
 }
 
 function addRule() {
-    const used = new Set(Object.keys(model.value.rules));
-    let code = 'A'.charCodeAt(0);
-    let newKey = '';
-    while (used.has(String.fromCharCode(code)) && code <= 'Z'.charCodeAt(0)) code++;
-    if (code > 'Z'.charCodeAt(0)) {
-        let i = 1;
-        while (used.has('X'+i)) i++;
-        newKey = 'X'+i;
-    } else {
-        newKey = String.fromCharCode(code);
+    // Найти первую свободную английскую букву (A-Z)
+    for (let code = 'A'.charCodeAt(0); code <= 'Z'.charCodeAt(0); code++) {
+        const letter = String.fromCharCode(code);
+        if (!model.value.rules[letter]) {
+            model.value.rules[letter] = '';
+            model.value.drawOptions[letter] = {
+                color: '#000000',
+                lineWidth: 1,
+                step: 1
+            };
+            symbolInputs[letter] = letter;
+            emitUpdate();
+            return;
+        }
     }
-    model.value.rules[newKey] = '';
-    model.value.specialDrawOptions[newKey] = { color: '#000000', lineWidth: 1, step: 1 };
-    symbolInputs[newKey] = newKey;
-    emitUpdate();
+    // Если все буквы A-Z заняты, ничего не добавляем
     nextTick(() => {
         const inputs = document.querySelectorAll('input[maxlength="1"]');
         if (inputs.length) (inputs[inputs.length-1] as HTMLInputElement).focus();
@@ -174,22 +201,43 @@ function addRule() {
 
 function removeRule(key: string) {
     delete model.value.rules[key];
-    delete model.value.specialDrawOptions[key];
+    delete model.value.drawOptions[key];
     delete symbolInputs[key];
     emitUpdate();
 }
 
 function onSymbolChange(oldKey: string, newKey: string) {
     newKey = newKey.trim().toUpperCase();
-    if (!newKey || oldKey === newKey || model.value.rules[newKey]) {
+
+    // Проверяем, что это английская буква
+    if (!newKey || !/^[A-Z]$/.test(newKey)) {
         symbolInputs[oldKey] = oldKey;
         return;
     }
+
+    if (oldKey === newKey || model.value.rules[newKey]) {
+        symbolInputs[oldKey] = oldKey;
+        return;
+    }
+
     model.value.rules[newKey] = model.value.rules[oldKey];
-    model.value.specialDrawOptions[newKey] = model.value.specialDrawOptions[oldKey];
+    model.value.drawOptions[newKey] = model.value.drawOptions[oldKey];
     symbolInputs[newKey] = newKey;
     removeRule(oldKey);
     emitUpdate();
+}
+
+function isDrawingSymbol(key: string): boolean {
+    // Проверяем, является ли символ заглавной английской буквой (рисующей)
+    return /^[A-Z]$/.test(key);
+}
+
+function onSymbolKeypress(event: KeyboardEvent) {
+    // Разрешаем только английские буквы
+    const char = event.key.toUpperCase();
+    if (!/^[A-Z]$/.test(char)) {
+        event.preventDefault();
+    }
 }
 </script>
 

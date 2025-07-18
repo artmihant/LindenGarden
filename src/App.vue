@@ -84,10 +84,10 @@ function render() { // Функция отрисовки L-системы
         program,
         turtleInitialState: model.value.start, // Начальное состояние "черепахи"
         stepAngle: model.value.stepAngle,  // угол поворота
-        specialDrawOptions: model.value.specialDrawOptions,
+        drawOptions: model.value.drawOptions,
         power: model.value.power,
         iterations: model.value.iterations,
-        camera, // Параметры камеры,
+        camera: camera, // Параметры камеры,
     });
 }
 

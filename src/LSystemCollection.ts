@@ -5,20 +5,20 @@ import type { Rules, DrawOptions, LSystemModel } from '@/types';
 const LSystemCollection: LSystemModel[] = [
     {
         name: 'Дерево Пифагора',
-        axiom: 'Л',
+        axiom: 'L',
         stepAngle: 45,
         rules: {
-            'Л': 'В[+Л]-Л',
-            'В': 'ВВ',
+            'L': 'B[+L]-L',
+            'B': 'BB',
         },
-        specialDrawOptions: {
-            'Л': { color: '#00ff00', lineWidth: 2, step: 1},
-            'В': { color: '#2c1d00', lineWidth: 2, step: 1},
+        drawOptions: {
+            'L': { color: '#00ff00', lineWidth: 2, step: 1},
+            'B': { color: '#2c1d00', lineWidth: 2, step: 1},
         },
         start: { x: 0, y: 0, angle: -90 },
         power:2,
-        iterations: 3, // Количество итераций
-        iterations_max: 10, // Максимальное количество итераций
+        iterations: 3,
+        iterations_max: 10,
     },
     {
         name: 'Кривая Госпера',
@@ -28,14 +28,14 @@ const LSystemCollection: LSystemModel[] = [
             'A': 'A-B--B+A++AA+B-',
             'B': '+A-BB--B-A++A+B',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'A': { color: '#2f0272', lineWidth: 1, step: 1 },
             'B': { color: '#2f0272', lineWidth: 1, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
         power: 3,
-        iterations: 3, // Количество итераций
-        iterations_max: 5, // Максимальное количество итераций
+        iterations: 3,
+        iterations_max: 5,
     },
     {
         name: 'Кривая дракона',
@@ -46,15 +46,15 @@ const LSystemCollection: LSystemModel[] = [
             'B': '-FA-B',
             'F': 'F',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'A': { color: '#ee2a2a', lineWidth: 2, step: 1 },
             'B': { color: '#cc0000', lineWidth: 2, step: 1 },
             'F': { color: '#ea0a0a', lineWidth: 2, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
         power: 1.5,
-        iterations: 3, // Количество итераций
-        iterations_max: 12, // Максимальное количество итераций
+        iterations: 3,
+        iterations_max: 12,
     },
     {
         name: 'Снежинка Коха',
@@ -63,7 +63,7 @@ const LSystemCollection: LSystemModel[] = [
         rules: {
             'F': 'F+F--F+F',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'F': { color: '#0ac8ea', lineWidth: 2, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
@@ -78,7 +78,7 @@ const LSystemCollection: LSystemModel[] = [
         rules: {
             'F': '+F--F+',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'F': { color: '#3100c2', lineWidth: 2, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
@@ -94,7 +94,7 @@ const LSystemCollection: LSystemModel[] = [
             'F': 'F-G+F+G-F',
             'G': 'GG',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'F': { color: '#3100c2', lineWidth: 2, step: 1 },
             'G': { color: '#3100c2', lineWidth: 2, step: 1 },
         },
@@ -111,7 +111,7 @@ const LSystemCollection: LSystemModel[] = [
             'X': 'F-[[X]+X]+F[+FX]-X',
             'F': 'FF',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'X': { color: '#46e100', lineWidth: 2, step: 1 },
             'F': { color: '#46e100', lineWidth: 2, step: 1 },
         },
@@ -127,7 +127,7 @@ const LSystemCollection: LSystemModel[] = [
         rules: {
             'F': 'FF+F++F+F',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'F': { color: '#3100c2', lineWidth: 2, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
@@ -145,7 +145,7 @@ const LSystemCollection: LSystemModel[] = [
             'C': '-A++B[+++C++D]-',
             'D': '--C++++A[+D++++B]--B',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'A': { color: '#cc0000', lineWidth: 2, step: 1 },
             'B': { color: '#cc0000', lineWidth: 2, step: 1 },
             'C': { color: '#cc0000', lineWidth: 2, step: 1 },
@@ -163,7 +163,7 @@ const LSystemCollection: LSystemModel[] = [
         rules: {
             'F': 'F+F--F+F',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'F': { color: '#cc0000', lineWidth: 2, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
@@ -180,9 +180,7 @@ const LSystemCollection: LSystemModel[] = [
             'r': '+lF-rFr-Fl+',
             'F': 'F',
         },
-        specialDrawOptions: {
-            'l': { color: '#cc0000', lineWidth: 2, step: 1 },
-            'r': { color: '#cc0000', lineWidth: 2, step: 1 },
+        drawOptions: {
             'F': { color: '#cc0000', lineWidth: 2, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
@@ -200,10 +198,7 @@ const LSystemCollection: LSystemModel[] = [
             'c': 'F+F+F+F',
             'F': 'F',
         },
-        specialDrawOptions: {
-            'a': { color: '#cc0000', lineWidth: 2, step: 1 },
-            'b': { color: '#cc0000', lineWidth: 2, step: 1 },
-            'c': { color: '#cc0000', lineWidth: 2, step: 1 },
+        drawOptions: {
             'F': { color: '#cc0000', lineWidth: 2, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
@@ -218,7 +213,7 @@ const LSystemCollection: LSystemModel[] = [
         rules: {
             'A': 'A+A-A-A+A',
         },
-        specialDrawOptions: {
+        drawOptions: {
             'A': { color: '#003acc', lineWidth: 2, step: 1 },
         },
         start: { x: 0, y: 0, angle: 0 },
