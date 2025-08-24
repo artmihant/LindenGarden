@@ -38,6 +38,7 @@ function partialApplyRules(rules: Rules, fracStep: number, power: number): Rules
     return newRules;
 }
 
+const SCREEN_SIZE = 3;
 
 /**
  * Генерирует строку L-системы для дробного шага.
@@ -55,28 +56,28 @@ function generateLProgram(axiom: string, rules: Rules, step: number, power: numb
 }
 
  // функция для перевода из относительных координат в пиксели
-function toPixels(turtle: Turtle, camera: Camera, power: number, iterations: number): [number, number] {
-    const powerScale = power**iterations
+function toPixels(turtle: Turtle, camera: Camera, canvas: HTMLCanvasElement, power: number, iteration: number): [number, number] {
+    const scale = Math.min(canvas.width, canvas.height) / SCREEN_SIZE *camera.scale/power**iteration
     return [
-        camera.x + turtle.x * camera.scale/powerScale,
-        camera.y + turtle.y * camera.scale/powerScale
+        canvas.width / 2 + camera.x + turtle.x * scale,
+        canvas.height / 2 + camera.y + turtle.y * scale
     ]
 }
 
 function drawLSystem(state: {
         ctx: CanvasRenderingContext2D,
+        canvas: HTMLCanvasElement,
         program: string,
-        turtleInitialState: Turtle,
         stepAngle: number,
         drawOptions: {[key: string]: DrawOptions},
         power: number,
-        iterations: number,
+        iteration: number,
         camera: Camera
     }) {
 
-    const {ctx, program, turtleInitialState, stepAngle, drawOptions, camera, power, iterations} = state
+    const {ctx, canvas, program, stepAngle, drawOptions, camera, power, iteration} = state
 
-    const turtle = {...turtleInitialState}
+    const turtle = {x:0, y:0, angle:0}
     ctx.save();
     ctx.lineWidth = 1;
     ctx.lineCap = 'round';
@@ -101,7 +102,7 @@ function drawLSystem(state: {
                 turtle.x = turtleState.x;
                 turtle.y = turtleState.y;
                 turtle.angle = turtleState.angle;
-                ctx.moveTo(...toPixels(turtle, camera, power, iterations));
+                ctx.moveTo(...toPixels(turtle, camera, canvas, power, iteration));
             }
             i++;
             continue;
@@ -137,12 +138,12 @@ function drawLSystem(state: {
                 }
 
                 ctx.beginPath();
-                ctx.moveTo(...toPixels(turtle, camera, power, iterations));
-                const rad = turtle.angle * Math.PI / 180;
+                ctx.moveTo(...toPixels(turtle, camera, canvas, power, iteration));
+                const rad = (camera.angle + turtle.angle) * Math.PI / 180;
                 turtle.x += frac * Math.cos(rad);
                 turtle.y += frac * Math.sin(rad);
 
-                ctx.lineTo(...toPixels(turtle, camera, power, iterations));
+                ctx.lineTo(...toPixels(turtle, camera, canvas, power, iteration));
                 ctx.stroke();
             } // Маленькая буква — ничего не делаем
 

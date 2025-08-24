@@ -1,5 +1,5 @@
 
-import type { Rules, DrawOptions, LSystemModel } from '@/types';
+import type { LSystemModel } from '@/types';
 
 
 const LSystemCollection: LSystemModel[] = [
@@ -15,7 +15,7 @@ const LSystemCollection: LSystemModel[] = [
             'L': { color: '#00ff00', lineWidth: 2, step: 1},
             'B': { color: '#2c1d00', lineWidth: 2, step: 1},
         },
-        start: { x: 0, y: 0, angle: -90 },
+        camera: { x: 0, y: 0, angle: -90, scale:1 },
         power:2,
         iterations: 3,
         iterations_max: 10,
@@ -32,7 +32,7 @@ const LSystemCollection: LSystemModel[] = [
             'A': { color: '#2f0272', lineWidth: 1, step: 1 },
             'B': { color: '#2f0272', lineWidth: 1, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 3,
         iterations: 3,
         iterations_max: 5,
@@ -51,7 +51,7 @@ const LSystemCollection: LSystemModel[] = [
             'B': { color: '#cc0000', lineWidth: 2, step: 1 },
             'F': { color: '#ea0a0a', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 1.5,
         iterations: 3,
         iterations_max: 12,
@@ -66,7 +66,7 @@ const LSystemCollection: LSystemModel[] = [
         drawOptions: {
             'F': { color: '#0ac8ea', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 2,
         iterations: 1, // Количество итераций
         iterations_max: 6, // Максимальное количество итераций
@@ -81,7 +81,7 @@ const LSystemCollection: LSystemModel[] = [
         drawOptions: {
             'F': { color: '#3100c2', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 1.5,
         iterations: 1,
         iterations_max: 10,
@@ -98,7 +98,7 @@ const LSystemCollection: LSystemModel[] = [
             'F': { color: '#3100c2', lineWidth: 2, step: 1 },
             'G': { color: '#3100c2', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 2,
         iterations: 1,
         iterations_max: 5,
@@ -115,7 +115,7 @@ const LSystemCollection: LSystemModel[] = [
             'X': { color: '#46e100', lineWidth: 2, step: 1 },
             'F': { color: '#46e100', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: -90 },
+        camera: { x: 0, y: 0, angle: -90, scale:1 },
         power: 2,
         iterations: 1,
         iterations_max: 5,
@@ -130,7 +130,7 @@ const LSystemCollection: LSystemModel[] = [
         drawOptions: {
             'F': { color: '#3100c2', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 3,
         iterations: 1,
         iterations_max: 5,
@@ -151,7 +151,7 @@ const LSystemCollection: LSystemModel[] = [
             'C': { color: '#cc0000', lineWidth: 2, step: 1 },
             'D': { color: '#cc0000', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 1.5,
         iterations: 1,
         iterations_max: 6,
@@ -166,7 +166,7 @@ const LSystemCollection: LSystemModel[] = [
         drawOptions: {
             'F': { color: '#cc0000', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 2,
         iterations: 1,
         iterations_max: 5,
@@ -183,7 +183,7 @@ const LSystemCollection: LSystemModel[] = [
         drawOptions: {
             'F': { color: '#cc0000', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 2,
         iterations: 1,
         iterations_max: 5,
@@ -201,7 +201,7 @@ const LSystemCollection: LSystemModel[] = [
         drawOptions: {
             'F': { color: '#cc0000', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 2,
         iterations: 1,
         iterations_max: 4,
@@ -216,7 +216,7 @@ const LSystemCollection: LSystemModel[] = [
         drawOptions: {
             'A': { color: '#003acc', lineWidth: 2, step: 1 },
         },
-        start: { x: 0, y: 0, angle: 0 },
+        camera: { x: 0, y: 0, angle: 0, scale:1 },
         power: 2,
         iterations: 1,
         iterations_max: 5,
